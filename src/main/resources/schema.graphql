@@ -1,0 +1,236 @@
+input DatasetFilters {
+    id: String
+    visibility: String
+    community_id : String
+    challenge_id : String
+    type: String
+}
+
+input EmbededDatasetFilters {
+    visibility: String
+    type: String
+}
+
+input ChallengeFilters {
+    id: String
+    benchmarking_event_id: String
+}
+
+input CommunityFilters {
+    id: String
+    keywords: [String]
+    status: String    
+}
+
+input PaginationFilters {
+    skip: Int
+    limit: Int
+}
+
+input BenchmarkingEventFilters {
+    id: String
+    community_id : String
+}
+
+input AgentFilters {
+    id: String
+    community_id: String
+}
+
+input MetricsFilters {
+    id: String
+    community_id: String    
+}
+
+type RelDatasetId {
+    dataset_id: String
+    role: String
+}
+
+
+scalar JSON
+
+
+
+type Datalink{
+    attrs: [String]
+    validation_date: String
+    status: String
+    uri: JSON
+    inline_data: JSON
+}
+
+type Dates{
+    creation: String
+    modification: String
+    _public: String
+}
+
+type AgentAccess{
+    agent_access_type: String
+    link: String
+    techdocs: [Link]
+}
+
+
+type Link {
+    label: String
+    uri: String
+    comment: String
+}
+
+type DependsOn {
+    metrics_id: String
+    agent_id: String
+    rel_dataset_ids: [RelDatasetId]
+}
+
+type BDates {
+    creation: String
+    modification: String
+    _public: String
+    benchmark_start: String
+    benchmark_stop: String
+}
+
+type CDates {
+    creation: String
+    modification: String
+    _public: String
+    challenge_start: String
+    challenge_stop: String
+}
+
+type Metric {
+    metrics_id: String
+    agent_id: String
+}
+
+type MetricsCategory {
+    category: String
+    description: String
+    metrics: [Metric]
+}
+
+type Challenge{
+    _id: String
+    _schema: String
+    acronym: String
+    orig_id: String
+    description: String
+    name: String
+    is_automated: Boolean
+    dates: CDates
+    url: String
+    metrics_categories: [MetricsCategory]
+    benchmarking_event_id: String
+    challenge_contact_ids: [String]
+    references: [String]
+    _metadata : JSON
+    datasets(pagination: PaginationFilters, datasetFilters: EmbededDatasetFilters): [Dataset]
+}
+
+type BenchmarkingEvent {
+    _id: String
+    _schema: String
+    orig_id: String
+    name: String
+    is_automated: Boolean
+    dates: BDates
+    url: String
+    community_id: String
+    bench_contact_ids: [String]
+    references: [String]
+    _metadata : JSON
+    challenges(pagination: PaginationFilters): [Challenge]
+}
+
+type Community {
+    _id: String
+    _schema: String
+    description: String
+    acronym: String
+    status: String
+    keywords: [String]
+    name: String
+    community_contact_ids: [String]
+    links: [Link]
+    references: [String]
+    _metadata : JSON
+    benchmarkingEvents(pagination: PaginationFilters): [BenchmarkingEvent]
+}
+
+type Dataset{
+    _id: String
+    _schema: String
+    orig_id: String
+    community_ids: [String]
+    challenge_ids: [String]
+    visibility: String
+    name: String
+    version: String
+    description: String
+    dates: Dates
+    type: String
+    datalink: Datalink
+    dataset_contact_ids: [String]
+    depends_on: DependsOn
+    references: [String]
+    _metadata : JSON
+}
+
+
+type Agent {
+    _id: String
+    _schema: String
+    registry_agent_id: String
+    name: String
+    community_ids: [String]
+    description: String
+    is_automated: Boolean
+    agent_contact_ids: [String]
+    status: String
+    activation: String
+    deactivation: String
+    references: [String]
+    _metadata : JSON
+    agent_access: [AgentAccess]
+}
+
+type Implementations {
+    agent_ids: [String]
+    community_id: String
+}
+
+type Metrics {
+    _id: String
+    _schema: String
+    orig_id: String
+    title: String
+    description: String
+    metrics_contact_ids: [String]
+    formal_definition: String
+    #implementations: [Implementations]
+    execution_type: String
+    data_schemas: String
+    links: [Link]
+    references: [String]
+    representation_hints : JSON
+    _metadata : JSON
+    #community_id: String
+}
+
+type Query{
+    getCommunities(communityFilters: CommunityFilters, pagination: PaginationFilters) : [Community]
+
+    getBenchmarkingEvents(benchmarkingEventFilters: BenchmarkingEventFilters, pagination: PaginationFilters) : [BenchmarkingEvent]
+
+    getChallenges(challengeFilters: ChallengeFilters, pagination: PaginationFilters): [Challenge]
+
+    getDatasets(datasetFilters: DatasetFilters, pagination: PaginationFilters): [Dataset]
+    
+    getAgents(agentFilters: AgentFilters, pagination: PaginationFilters) : [Agent]
+
+    getMetrics(metricsFilters: MetricsFilters, pagination: PaginationFilters) : [Metrics]
+    
+}
